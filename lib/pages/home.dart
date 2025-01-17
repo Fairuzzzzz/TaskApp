@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskapp/models/recipes_models.dart';
+import 'package:taskapp/pages/recipes_details.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -39,72 +40,16 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Container(
-                height: 160,
-                width: 180,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 3,
-                          blurRadius: 5,
-                          offset: Offset(0, 3))
-                    ]),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                        height: 80,
-                        width: 180,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(12),
-                        )),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(recipes[0].title,
-                              style: TextStyle(color: Colors.black)),
-                        )
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(recipes[0].ingredients,
-                          style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    ),
-                    SizedBox(height: 4),
-                    Row(children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: Colors.grey,
-                              size: 16,
-                            ),
-                            Text('${recipes[0].rating}',
-                                style: TextStyle(color: Colors.grey))
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('${recipes[0].calories} kcal',
-                            style: TextStyle(color: Colors.grey)),
-                      )
-                    ])
-                  ],
-                ),
-              ),
-              Container(
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecipesDetailsPage(
+                                recipes: recipes[0],
+                              )));
+                },
+                child: Container(
                   height: 160,
                   width: 180,
                   decoration: BoxDecoration(
@@ -121,12 +66,14 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: 80,
-                        width: 180,
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(12)),
-                      ),
+                          height: 80,
+                          width: 180,
+                          decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                  image: AssetImage(recipes[0].imageUrl),
+                                  fit: BoxFit.cover))),
                       SizedBox(
                         height: 8,
                       ),
@@ -134,40 +81,129 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(recipes[1].title,
+                            child: Text(recipes[0].title,
                                 style: TextStyle(color: Colors.black)),
                           )
                         ],
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(recipes[1].ingredients,
+                        child: Text(recipes[0].ingredients,
                             style: TextStyle(color: Colors.grey, fontSize: 12)),
                       ),
                       SizedBox(height: 4),
-                      Row(children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.star,
-                                color: Colors.grey,
-                                size: 16,
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.yellow,
+                                    size: 16,
+                                  ),
+                                  Text('${recipes[0].rating}',
+                                      style: TextStyle(color: Colors.grey))
+                                ],
                               ),
-                              Text('${recipes[1].rating}',
-                                  style: TextStyle(color: Colors.grey))
-                            ],
-                          ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text('${recipes[0].calories} kcal',
+                                  style: TextStyle(color: Colors.grey)),
+                            )
+                          ])
+                    ],
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RecipesDetailsPage(
+                                recipes: recipes[1],
+                              )));
+                },
+                child: Container(
+                    height: 160,
+                    width: 180,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 3,
+                              blurRadius: 5,
+                              offset: Offset(0, 3))
+                        ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 80,
+                          width: 180,
+                          decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                  image: AssetImage(recipes[1].imageUrl),
+                                  fit: BoxFit.cover)),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Row(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(recipes[1].title,
+                                  style: TextStyle(color: Colors.black)),
+                            )
+                          ],
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text('${recipes[1].calories} kcal',
-                              style: TextStyle(color: Colors.grey)),
-                        )
-                      ])
-                    ],
-                  )),
+                          child: Text(recipes[1].ingredients,
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 12)),
+                        ),
+                        SizedBox(height: 4),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 16,
+                                    ),
+                                    Text('${recipes[1].rating}',
+                                        style: TextStyle(color: Colors.grey))
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text('${recipes[1].calories} kcal',
+                                    style: TextStyle(color: Colors.grey)),
+                              )
+                            ])
+                      ],
+                    )),
+              ),
             ],
           ),
           SizedBox(
@@ -187,11 +223,11 @@ class _HomePageState extends State<HomePage> {
               width: double.infinity,
               height: 180,
               decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   image: DecorationImage(
                       image: AssetImage("assets/images/image.png"),
-                      fit: BoxFit.fill)),
+                      fit: BoxFit.cover)),
             ),
           ),
           SizedBox(

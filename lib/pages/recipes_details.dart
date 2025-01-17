@@ -12,6 +12,81 @@ class RecipesDetailsPage extends StatefulWidget {
 
 class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
   int counter = 0;
+  String selectedValue = 'Ingredients';
+
+  Widget _buildSelectionBlock(String text, bool isSelected, Function() onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        width: 100,
+        decoration: BoxDecoration(
+            color: isSelected ? Colors.green : Colors.white,
+            border: Border.all(color: isSelected ? Colors.white : Colors.green),
+            borderRadius: BorderRadius.circular(20)),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(color: isSelected ? Colors.white : Colors.grey),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return Container(
+        padding: EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 24,
+            ),
+            if (selectedValue == 'Ingredients')
+              ...widget.recipes.ingredients.split(',').map((ingredient) {
+                return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                              color: Color(0xFF9BD886), shape: BoxShape.circle),
+                        ),
+                        SizedBox(
+                          width: 12,
+                        ),
+                        Text(ingredient.trim(),
+                            style: TextStyle(color: Colors.grey, fontSize: 16))
+                      ],
+                    ));
+              }).toList()
+            else
+              ...widget.recipes.nutrition.split(',').map((nutritions) {
+                return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                              color: Color(0xFF9BD886), shape: BoxShape.circle),
+                        ),
+                        SizedBox(
+                          width: 12,
+                        ),
+                        Text(nutritions.trim(),
+                            style: TextStyle(color: Colors.grey, fontSize: 16))
+                      ],
+                    ));
+              })
+          ],
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,6 +106,19 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(12),
+                  image: DecorationImage(
+                      image: AssetImage(widget.recipes.imageUrl),
+                      fit: BoxFit.cover)),
+            ),
+            SizedBox(
+              height: 16,
+            ),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(
                 widget.recipes.title,
@@ -146,35 +234,17 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Container(
-                  height: 40,
-                  width: 100,
-                  decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(20)),
-                  child: Center(
-                    child: Text(
-                      'Ingredients',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 40,
-                  width: 100,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.green)),
-                  child: Center(
-                    child: Text(
-                      'Nutritions',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                )
+                _buildSelectionBlock(
+                    'Ingredients',
+                    selectedValue == 'Ingredients',
+                    () => setState(() => selectedValue = 'Ingredients')),
+                _buildSelectionBlock(
+                    'Nutritions',
+                    selectedValue == 'Nutritions',
+                    () => setState(() => selectedValue = 'Nutritions')),
               ],
-            )
+            ),
+            _buildContent(),
           ],
         ),
       ),

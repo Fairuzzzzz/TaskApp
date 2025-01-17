@@ -12,7 +12,30 @@ class RecipesPage extends StatefulWidget {
 
 class _RecipesPageState extends State<RecipesPage> {
   List<RecipesModels> recipes = RecipesModels.recipes;
-  String searchValue = "Pesto Pasta";
+  List<RecipesModels> filteredRecipes = [];
+  String searchValue = "Search Recipes...";
+  final TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    filteredRecipes = recipes;
+  }
+
+  void searchRecipes(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredRecipes = recipes;
+      } else {
+        filteredRecipes = recipes
+            .where((recipe) =>
+                recipe.title.toLowerCase().contains(query.toLowerCase()) ||
+                recipe.ingredients.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,23 +46,22 @@ class _RecipesPageState extends State<RecipesPage> {
             Container(
               height: 40,
               width: 320,
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              decoration:
+                  BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
               child: TextField(
                   onTap: () {
                     setState(() {
                       searchValue = '';
                     });
                   },
+                  controller: searchController,
+                  onChanged: searchRecipes,
                   decoration: InputDecoration(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
                       isDense: true,
                       labelText: searchValue,
                       labelStyle: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                          overflow: TextOverflow.visible),
+                          color: Colors.grey, fontSize: 14, overflow: TextOverflow.visible),
                       alignLabelWithHint: true,
                       border: InputBorder.none)),
             ),
@@ -62,7 +84,7 @@ class _RecipesPageState extends State<RecipesPage> {
                 mainAxisSpacing: 24,
                 childAspectRatio: 2.7 / 2,
               ),
-              itemCount: recipes.length,
+              itemCount: filteredRecipes.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
@@ -70,7 +92,7 @@ class _RecipesPageState extends State<RecipesPage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => RecipesDetailsPage(
-                                  recipes: recipes[index],
+                                  recipes: filteredRecipes[index],
                                 )));
                   },
                   child: Container(
@@ -93,21 +115,21 @@ class _RecipesPageState extends State<RecipesPage> {
                           height: 70,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(12)),
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                  image: AssetImage(filteredRecipes[index].imageUrl),
+                                  fit: BoxFit.cover)),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          child: Text(recipes[index].title,
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.black)),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Text(filteredRecipes[index].title,
+                              style: TextStyle(fontSize: 12, color: Colors.black)),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(recipes[index].ingredients,
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey)),
+                          child: Text(filteredRecipes[index].ingredients,
+                              style: TextStyle(fontSize: 12, color: Colors.grey)),
                         ),
                         SizedBox(height: 4),
                         Row(
@@ -116,25 +138,21 @@ class _RecipesPageState extends State<RecipesPage> {
                             children: [
                               Row(children: [
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
                                   child: Icon(
                                     Icons.star,
                                     color: Colors.yellow,
                                     size: 16,
                                   ),
                                 ),
-                                Text(recipes[index].rating.toString(),
-                                    style: TextStyle(
-                                        fontSize: 12, color: Colors.black))
+                                Text(filteredRecipes[index].rating.toString(),
+                                    style: TextStyle(fontSize: 12, color: Colors.black))
                               ]),
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
                                 child: Text(
-                                  '${recipes[index].calories} kcal',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey),
+                                  '${filteredRecipes[index].calories} kcal',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                               )
                             ])
