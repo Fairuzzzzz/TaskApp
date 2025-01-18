@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskapp/pages/favorites.dart';
 import 'package:taskapp/pages/home.dart';
 import 'package:taskapp/pages/info.dart';
+import 'package:taskapp/pages/profiles.dart';
 import 'package:taskapp/pages/recipes.dart';
 
 class MainScreen extends StatefulWidget {
@@ -20,9 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     FavoritesPage(),
     RecipesPage(),
     InfoPage(),
-    const Center(
-      child: Text("Profiles"),
-    )
+    ProfilePage(),
   ];
 
   @override

@@ -42,6 +42,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   color: Colors.grey.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12)),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
@@ -57,7 +58,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                             )),
                         Text(favorites[index].description,
                             style:
-                                TextStyle(fontSize: 12, color: Colors.black)),
+                                TextStyle(fontSize: 10, color: Colors.black)),
                         SizedBox(
                           height: 8,
                         ),
@@ -69,6 +70,20 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           ],
                         )
                       ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Container(
+                      height: 90,
+                      width: 90,
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                              image: AssetImage(favorites[index].imageUrl),
+                              fit: BoxFit.cover)),
                     ),
                   )
                 ],
