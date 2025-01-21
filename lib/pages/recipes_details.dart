@@ -62,7 +62,7 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
                             style: TextStyle(color: Colors.grey, fontSize: 16))
                       ],
                     ));
-              }).toList()
+              })
             else
               ...widget.recipes.nutrition.split(',').map((nutritions) {
                 return Padding(
@@ -101,151 +101,153 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
             icon: Icon(Icons.arrow_back_ios_rounded),
             color: Color(0xFF9BD886)),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                      image: AssetImage(widget.recipes.imageUrl),
-                      fit: BoxFit.cover)),
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(
-                widget.recipes.title,
-                style: TextStyle(color: Colors.black, fontSize: 20),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(12),
+                    image: DecorationImage(
+                        image: AssetImage(widget.recipes.imageUrl),
+                        fit: BoxFit.cover)),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text(
+                  widget.recipes.title,
+                  style: TextStyle(color: Colors.black, fontSize: 20),
+                ),
+                Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/ArrowUpTray.svg',
+                      color: Colors.grey,
+                    ),
+                    SizedBox(width: 16),
+                    SvgPicture.asset(
+                      'assets/icons/Heart.svg',
+                      color: Colors.grey,
+                    )
+                  ],
+                )
+              ]),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: Colors.yellow,
+                  ),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    widget.recipes.rating.toString(),
+                    style: TextStyle(fontSize: 14),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Text(widget.recipes.description,
+                  style: TextStyle(color: Colors.grey, fontSize: 16)),
+              SizedBox(
+                height: 16,
               ),
               Row(
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/ArrowUpTray.svg',
+                    'assets/icons/utensils.svg',
                     color: Colors.grey,
                   ),
-                  SizedBox(width: 16),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    widget.recipes.eattime,
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
                   SvgPicture.asset(
-                    'assets/icons/Heart.svg',
+                    'assets/icons/GlobeAlt.svg',
+                    color: Colors.grey,
+                  ),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Text(widget.recipes.from,
+                      style: TextStyle(color: Colors.grey, fontSize: 16))
+                ],
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    'Servings',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                  IconButton(
+                    onPressed: () => setState(() {
+                      if (counter > 0) {
+                        counter--;
+                      }
+                    }),
+                    icon: Icon(Icons.remove),
+                    color: Colors.grey,
+                  ),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Text('$counter',
+                      style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  IconButton(
+                    onPressed: () => setState(() {
+                      counter++;
+                    }),
+                    icon: Icon(Icons.add),
                     color: Colors.grey,
                   )
                 ],
-              )
-            ]),
-            SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.star,
-                  color: Colors.yellow,
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Text(
-                  widget.recipes.rating.toString(),
-                  style: TextStyle(fontSize: 14),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Text(widget.recipes.description,
-                style: TextStyle(color: Colors.grey, fontSize: 16)),
-            SizedBox(
-              height: 16,
-            ),
-            Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/icons/utensils.svg',
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Text(
-                  widget.recipes.eattime,
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
-                ),
-                SizedBox(
-                  width: 16,
-                ),
-                SvgPicture.asset(
-                  'assets/icons/GlobeAlt.svg',
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Text(widget.recipes.from,
-                    style: TextStyle(color: Colors.grey, fontSize: 16))
-              ],
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  'Servings',
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
-                ),
-                IconButton(
-                  onPressed: () => setState(() {
-                    if (counter > 0) {
-                      counter--;
-                    }
-                  }),
-                  icon: Icon(Icons.remove),
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Text('$counter',
-                    style: TextStyle(fontSize: 16, color: Colors.grey)),
-                SizedBox(
-                  width: 8,
-                ),
-                IconButton(
-                  onPressed: () => setState(() {
-                    counter++;
-                  }),
-                  icon: Icon(Icons.add),
-                  color: Colors.grey,
-                )
-              ],
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSelectionBlock(
-                    'Ingredients',
-                    selectedValue == 'Ingredients',
-                    () => setState(() => selectedValue = 'Ingredients')),
-                _buildSelectionBlock(
-                    'Nutritions',
-                    selectedValue == 'Nutritions',
-                    () => setState(() => selectedValue = 'Nutritions')),
-              ],
-            ),
-            _buildContent(),
-          ],
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildSelectionBlock(
+                      'Ingredients',
+                      selectedValue == 'Ingredients',
+                      () => setState(() => selectedValue = 'Ingredients')),
+                  _buildSelectionBlock(
+                      'Nutritions',
+                      selectedValue == 'Nutritions',
+                      () => setState(() => selectedValue = 'Nutritions')),
+                ],
+              ),
+              _buildContent(),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Row(
