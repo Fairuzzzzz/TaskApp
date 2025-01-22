@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskapp/models/recipes_models.dart';
 import 'package:taskapp/pages/recipes_details.dart';
+import 'package:taskapp/services/recipe_services.dart';
 
 class RecipesPage extends StatefulWidget {
   const RecipesPage({super.key});
@@ -12,15 +13,33 @@ class RecipesPage extends StatefulWidget {
 }
 
 class _RecipesPageState extends State<RecipesPage> {
-  List<RecipesModels> recipes = RecipesModels.recipes;
+  final RecipeServices _recipeServices = RecipeServices();
+  List<RecipesModels> recipes = [];
   List<RecipesModels> filteredRecipes = [];
+  bool isLoading = true;
   String searchValue = "Search Recipes...";
   final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    filteredRecipes = recipes;
+    _loadRecipes();
+  }
+
+  Future<void> _loadRecipes() async {
+    try {
+      final fetchedRecipes = await _recipeServices.getAllRecipes();
+      setState(() {
+        recipes = fetchedRecipes;
+        filteredRecipes = recipes;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void searchRecipes(String query) {
@@ -48,117 +67,134 @@ class _RecipesPageState extends State<RecipesPage> {
 
     return Scaffold(
       appBar: _appBar(),
-      body: LayoutBuilder(builder: (context, constraints) {
-        return Padding(
-            padding: EdgeInsets.all(8),
-            child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: gridPadding * 2,
-                  mainAxisSpacing: gridPadding * 3,
-                  childAspectRatio: size.width > 600 ? 1.5 : 1.2,
-                ),
-                itemCount: filteredRecipes.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RecipesDetailsPage(
-                                    recipes: filteredRecipes[index],
-                                  )));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 3,
-                                blurRadius: 5,
-                                offset: Offset(0, 3))
-                          ]),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
-                            flex: 3,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius.circular(12),
-                                  image: DecorationImage(
-                                      image: AssetImage(
-                                          filteredRecipes[index].imageUrl),
-                                      fit: BoxFit.cover)),
-                            ),
-                          ),
-                          Flexible(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              child: Text(
-                                filteredRecipes[index].title,
-                                style: TextStyle(
-                                    fontSize: titleFontSize * 0.7,
-                                    color: Colors.black),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              filteredRecipes[index].ingredients,
-                              style: TextStyle(
-                                  fontSize: descriptionFontSize * 0.8,
-                                  color: Colors.grey),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Spacer(),
-                          Row(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : LayoutBuilder(builder: (context, constraints) {
+              return Padding(
+                  padding: EdgeInsets.all(8),
+                  child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: gridPadding * 2,
+                        mainAxisSpacing: gridPadding * 3,
+                        childAspectRatio: size.width > 600 ? 1.5 : 1.2,
+                      ),
+                      itemCount: filteredRecipes.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RecipesDetailsPage(
+                                          recipes: filteredRecipes[index],
+                                        )));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 3,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 3))
+                                ]),
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                  Padding(
+                                Flexible(
+                                  flex: 3,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey,
+                                        borderRadius: BorderRadius.circular(12),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                filteredRecipes[index]
+                                                    .imageUrl),
+                                            fit: BoxFit.cover)),
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 8),
-                                    child: Icon(
-                                      Icons.star,
-                                      color: Colors.yellow,
-                                      size: titleFontSize * 0.8,
+                                        horizontal: 8, vertical: 4),
+                                    child: Text(
+                                      filteredRecipes[index].title,
+                                      style: TextStyle(
+                                          fontSize: titleFontSize * 0.7,
+                                          color: Colors.black),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  Text(filteredRecipes[index].rating.toString(),
-                                      style: TextStyle(
-                                          fontSize: descriptionFontSize * 0.8, color: Colors.black))
-                                ]),
+                                ),
                                 Padding(
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 8),
                                   child: Text(
-                                    '${filteredRecipes[index].calories} kcal',
+                                    filteredRecipes[index].ingredients,
                                     style: TextStyle(
-                                        fontSize: descriptionFontSize * 0.8, color: Colors.grey),
+                                        fontSize: descriptionFontSize * 0.8,
+                                        color: Colors.grey),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                )
-                              ])
-                        ],
-                      ),
-                    ),
-                  );
-                }));
-      }),
+                                ),
+                                Spacer(),
+                                Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
+                                              child: Icon(
+                                                Icons.star,
+                                                color: Colors.yellow,
+                                                size: titleFontSize * 0.8,
+                                              ),
+                                            ),
+                                            Text(
+                                                filteredRecipes[index]
+                                                    .rating
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    fontSize:
+                                                        descriptionFontSize *
+                                                            0.8,
+                                                    color: Colors.black))
+                                          ]),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: Text(
+                                          '${filteredRecipes[index].calories} kcal',
+                                          style: TextStyle(
+                                              fontSize:
+                                                  descriptionFontSize * 0.8,
+                                              color: Colors.grey),
+                                        ),
+                                      )
+                                    ])
+                              ],
+                            ),
+                          ),
+                        );
+                      }));
+            }),
       backgroundColor: Colors.white,
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskapp/models/recipes_models.dart';
 import 'package:taskapp/pages/recipes_details.dart';
+import 'package:taskapp/services/recipe_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,6 +14,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _searchValue = 'Pesto Pasta';
+  final RecipeServices _recipeServices = RecipeServices();
+  List<RecipesModels> hotRecipes = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHotRecipes();
+  }
+
+  Future<void> _loadHotRecipes() async {
+    try {
+      final recipes = await _recipeServices.getAllRecipes();
+      setState(() {
+        recipes.sort((a, b) => b.rating.compareTo(a.rating));
+        hotRecipes = recipes.take(2).toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading hot recipes: $e');
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,107 +45,97 @@ class _HomePageState extends State<HomePage> {
     final safeHeight = size.height - padding.top - padding.bottom;
     final dynamicFontSize = size.width * 0.04;
 
-    List<RecipesModels> recipes = RecipesModels.recipes;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true,
       appBar: _appBar(),
-      body: LayoutBuilder(builder: (context, constraints) {
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: padding.top + kToolbarHeight + 12,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  "Hottest Recipes",
-                  style:
-                      TextStyle(color: Colors.black, fontSize: dynamicFontSize),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : LayoutBuilder(builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: padding.top + kToolbarHeight + 12,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        "Hottest Recipes",
+                        style: TextStyle(
+                            color: Colors.black, fontSize: dynamicFontSize),
+                      ),
+                    ),
+                    SizedBox(
+                      height: safeHeight * 0.012,
+                    ),
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: hotRecipes
+                            .map((recipe) => _buildRecipeCard(
+                                context: context,
+                                recipe: recipe,
+                                width: constraints.maxWidth * 0.43,
+                                height: safeHeight * 0.27,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          RecipesDetailsPage(recipes: recipe),
+                                    ),
+                                  );
+                                }))
+                            .toList()),
+                    SizedBox(
+                      height: safeHeight * 0.02,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Text("Featured",
+                          style: TextStyle(
+                              color: Colors.black, fontSize: dynamicFontSize)),
+                    ),
+                    SizedBox(
+                      height: safeHeight * 0.012,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Container(
+                        width: double.infinity,
+                        height: constraints.maxWidth * 0.4,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            image: DecorationImage(
+                                image: AssetImage("assets/images/image.png"),
+                                fit: BoxFit.cover)),
+                      ),
+                    ),
+                    SizedBox(
+                      height: safeHeight * 0.012,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text("Select Recipes",
+                          style: TextStyle(
+                              color: Colors.black, fontSize: dynamicFontSize)),
+                    ),
+                    SizedBox(
+                      height: safeHeight * 0.012,
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: _buildCategoryGrid(constraints)),
+                    SizedBox(
+                      height: safeHeight * 0.02,
+                    )
+                  ],
                 ),
-              ),
-              SizedBox(
-                height: safeHeight * 0.012,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildRecipeCard(
-                      context: context,
-                      recipe: recipes[0],
-                      width: constraints.maxWidth * 0.43,
-                      height: safeHeight * 0.29,
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    RecipesDetailsPage(recipes: recipes[0])));
-                      }),
-                  _buildRecipeCard(
-                      context: context,
-                      recipe: recipes[1],
-                      width: constraints.maxWidth * 0.43,
-                      height: safeHeight * 0.29,
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    RecipesDetailsPage(recipes: recipes[1])));
-                      })
-                ],
-              ),
-              SizedBox(
-                height: safeHeight * 0.02,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Text("Featured",
-                    style: TextStyle(
-                        color: Colors.black, fontSize: dynamicFontSize)),
-              ),
-              SizedBox(
-                height: safeHeight * 0.012,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  width: double.infinity,
-                  height: constraints.maxWidth * 0.4,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                          image: AssetImage("assets/images/image.png"),
-                          fit: BoxFit.cover)),
-                ),
-              ),
-              SizedBox(
-                height: safeHeight * 0.012,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text("Select Recipes",
-                    style: TextStyle(
-                        color: Colors.black, fontSize: dynamicFontSize)),
-              ),
-              SizedBox(
-                height: safeHeight * 0.012,
-              ),
-              Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _buildCategoryGrid(constraints)),
-              SizedBox(
-                height: safeHeight * 0.02,
-              )
-            ],
-          ),
-        );
-      }),
+              );
+            }),
       backgroundColor: Colors.white,
     );
   }

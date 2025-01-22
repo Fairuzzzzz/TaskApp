@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:math' as math;
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -24,7 +23,7 @@ class ProfilePage extends StatelessWidget {
         final screenWidth = MediaQuery.of(context).size.width;
         final isTablet = screenWidth > 600;
 
-        final dynamicHeight = constraints.maxHeight * (isTablet ? 0.2589: 0.3);
+        final dynamicHeight = constraints.maxHeight * (isTablet ? 0.2589 : 0.3);
         final maxHeight = 300.0;
         final containerHeight = dynamicHeight.clamp(230.0, maxHeight);
         return SingleChildScrollView(

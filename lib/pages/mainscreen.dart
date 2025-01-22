@@ -32,7 +32,8 @@ class _MainScreenState extends State<MainScreen> {
           data: NavigationBarThemeData(
               backgroundColor: Color(0xFF62CE3C),
               indicatorColor: Colors.transparent,
-              labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((state) {
+              labelTextStyle:
+                  WidgetStateProperty.resolveWith<TextStyle>((state) {
                 if (state.contains(WidgetState.selected)) {
                   return const TextStyle(color: Colors.grey, fontSize: 12);
                 }
@@ -54,19 +55,23 @@ class _MainScreenState extends State<MainScreen> {
                     label: "Home"),
                 NavigationDestination(
                     icon: SvgPicture.asset('assets/icons/Star.svg',
-                        color: _selectedIndex == 1 ? Colors.grey : Colors.white),
+                        color:
+                            _selectedIndex == 1 ? Colors.grey : Colors.white),
                     label: "Favorites"),
                 NavigationDestination(
                     icon: SvgPicture.asset('assets/icons/PencilSquare.svg',
-                        color: _selectedIndex == 2 ? Colors.grey : Colors.white),
+                        color:
+                            _selectedIndex == 2 ? Colors.grey : Colors.white),
                     label: "Recipes"),
                 NavigationDestination(
                     icon: SvgPicture.asset('assets/icons/InformationCircle.svg',
-                        color: _selectedIndex == 3 ? Colors.grey : Colors.white),
+                        color:
+                            _selectedIndex == 3 ? Colors.grey : Colors.white),
                     label: "Info"),
                 NavigationDestination(
                     icon: SvgPicture.asset('assets/icons/UserCircle.svg',
-                        color: _selectedIndex == 4 ? Colors.grey : Colors.white),
+                        color:
+                            _selectedIndex == 4 ? Colors.grey : Colors.white),
                     label: "Profiles"),
               ])),
     );

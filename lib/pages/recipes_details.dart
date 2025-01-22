@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskapp/models/recipes_models.dart';
+import 'package:taskapp/services/recipe_services.dart';
 
 class RecipesDetailsPage extends StatefulWidget {
   final RecipesModels recipes;
@@ -13,6 +14,56 @@ class RecipesDetailsPage extends StatefulWidget {
 class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
   int counter = 0;
   String selectedValue = 'Ingredients';
+  final RecipeServices _recipeServices = RecipeServices();
+  bool _isLoading = false;
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = widget.recipes.isFavorite;
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _isFavorite = !_isFavorite;
+    });
+
+    try {
+      if (_isFavorite) {
+        await _recipeServices.addToFavorites(widget.recipes.id);
+      } else {
+        await _recipeServices.removeFavorite(widget.recipes.id);
+      }
+
+      widget.recipes.isFavorite = _isFavorite;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.recipes.isFavorite
+              ? 'Added to favorites'
+              : 'Removed from favorites'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      print('Error toggling favorite: $e');
+      setState(() {
+        _isFavorite = !_isFavorite;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to update favorite status'),
+        backgroundColor: Colors.red,
+      ));
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Widget _buildSelectionBlock(String text, bool isSelected, Function() onTap) {
     return GestureDetector(
@@ -89,205 +140,218 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Recipes',
-            style: TextStyle(
-              color: Color(0xFF9BD886),
-            )),
-        centerTitle: true,
-        leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_ios_rounded),
-            color: Color(0xFF9BD886)),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                        image: AssetImage(widget.recipes.imageUrl),
-                        fit: BoxFit.cover)),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(
-                  widget.recipes.title,
-                  style: TextStyle(color: Colors.black, fontSize: 20),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, _isFavorite);
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Recipes',
+              style: TextStyle(
+                color: Color(0xFF9BD886),
+              )),
+          centerTitle: true,
+          leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(Icons.arrow_back_ios_rounded),
+              color: Color(0xFF9BD886)),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                          image: AssetImage(widget.recipes.imageUrl),
+                          fit: BoxFit.cover)),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        widget.recipes.title,
+                        style: TextStyle(color: Colors.black, fontSize: 20),
+                      ),
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/ArrowUpTray.svg',
+                            color: Colors.grey,
+                          ),
+                          SizedBox(width: 16),
+                          GestureDetector(
+                            onTap: _toggleFavorite,
+                            child: SvgPicture.asset(
+                              _isFavorite
+                                  ? 'assets/icons/HeartSolid.svg'
+                                  : 'assets/icons/Heart.svg',
+                              color: _isFavorite ? Colors.red : Colors.grey,
+                            ),
+                          )
+                        ],
+                      )
+                    ]),
+                SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.star,
+                      color: Colors.yellow,
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(
+                      widget.recipes.rating.toString(),
+                      style: TextStyle(fontSize: 14),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Text(widget.recipes.description,
+                    style: TextStyle(color: Colors.grey, fontSize: 16)),
+                SizedBox(
+                  height: 16,
                 ),
                 Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/icons/ArrowUpTray.svg',
+                      'assets/icons/utensils.svg',
                       color: Colors.grey,
                     ),
-                    SizedBox(width: 16),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(
+                      widget.recipes.eattime,
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                    SizedBox(
+                      width: 16,
+                    ),
                     SvgPicture.asset(
-                      'assets/icons/Heart.svg',
+                      'assets/icons/GlobeAlt.svg',
+                      color: Colors.grey,
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(widget.recipes.from,
+                        style: TextStyle(color: Colors.grey, fontSize: 16))
+                  ],
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Servings',
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                    IconButton(
+                      onPressed: () => setState(() {
+                        if (counter > 0) {
+                          counter--;
+                        }
+                      }),
+                      icon: Icon(Icons.remove),
+                      color: Colors.grey,
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text('$counter',
+                        style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    IconButton(
+                      onPressed: () => setState(() {
+                        counter++;
+                      }),
+                      icon: Icon(Icons.add),
                       color: Colors.grey,
                     )
                   ],
-                )
-              ]),
-              SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.star,
-                    color: Colors.yellow,
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text(
-                    widget.recipes.rating.toString(),
-                    style: TextStyle(fontSize: 14),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Text(widget.recipes.description,
-                  style: TextStyle(color: Colors.grey, fontSize: 16)),
-              SizedBox(
-                height: 16,
-              ),
-              Row(
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/utensils.svg',
-                    color: Colors.grey,
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text(
-                    widget.recipes.eattime,
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  SvgPicture.asset(
-                    'assets/icons/GlobeAlt.svg',
-                    color: Colors.grey,
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text(widget.recipes.from,
-                      style: TextStyle(color: Colors.grey, fontSize: 16))
-                ],
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Servings',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                  IconButton(
-                    onPressed: () => setState(() {
-                      if (counter > 0) {
-                        counter--;
-                      }
-                    }),
-                    icon: Icon(Icons.remove),
-                    color: Colors.grey,
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text('$counter',
-                      style: TextStyle(fontSize: 16, color: Colors.grey)),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  IconButton(
-                    onPressed: () => setState(() {
-                      counter++;
-                    }),
-                    icon: Icon(Icons.add),
-                    color: Colors.grey,
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildSelectionBlock(
-                      'Ingredients',
-                      selectedValue == 'Ingredients',
-                      () => setState(() => selectedValue = 'Ingredients')),
-                  _buildSelectionBlock(
-                      'Nutritions',
-                      selectedValue == 'Nutritions',
-                      () => setState(() => selectedValue = 'Nutritions')),
-                ],
-              ),
-              _buildContent(),
-            ],
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildSelectionBlock(
+                        'Ingredients',
+                        selectedValue == 'Ingredients',
+                        () => setState(() => selectedValue = 'Ingredients')),
+                    _buildSelectionBlock(
+                        'Nutritions',
+                        selectedValue == 'Nutritions',
+                        () => setState(() => selectedValue = 'Nutritions')),
+                  ],
+                ),
+                _buildContent(),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green),
-                ),
-                child: Center(
-                  child: Text('Add to trolley',
-                      style: TextStyle(color: Colors.green, fontSize: 16)),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white),
-                ),
-                child: Center(
-                  child: Text('Order now',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+        bottomNavigationBar: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green),
+                  ),
+                  child: Center(
+                    child: Text('Add to trolley',
+                        style: TextStyle(color: Colors.green, fontSize: 16)),
+                  ),
                 ),
               ),
             ),
-          )
-        ],
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: Center(
+                    child: Text('Order now',
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
