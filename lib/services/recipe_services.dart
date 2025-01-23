@@ -9,10 +9,7 @@ class RecipeServices {
 
   Future<List<RecipesModels>> getAllRecipes() async {
     try {
-      print('Fetching recipes from: $baseUrl/recipes/all');
       final response = await http.get(Uri.parse('$baseUrl/recipes/all'));
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(response.body);
         return jsonData.map((json) => RecipesModels.fromJson(json)).toList();
@@ -20,7 +17,6 @@ class RecipeServices {
         throw Exception('Failed to load recipes');
       }
     } catch (e) {
-      print('Error loading recipes: $e');
       throw Exception('Failed to load recipes');
     }
   }
@@ -29,7 +25,7 @@ class RecipeServices {
     final response = await http.post(Uri.parse('$baseUrl/favorites/add'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'recipeId': recipeId}));
-    if (response.statusCode != 200) {
+    if (response.statusCode != 201) {
       throw Exception('Failed to add to favorites');
     }
   }
@@ -50,7 +46,7 @@ class RecipeServices {
 
   Future<void> removeFavorite(int favoriteID) async {
     final response =
-        await http.delete(Uri.parse('$baseUrl/favorites/$favoriteID'));
+        await http.delete(Uri.parse('$baseUrl/favorites/recipe/$favoriteID'));
     if (response.statusCode != 200) {
       throw Exception('Failed to remove favorite');
     }

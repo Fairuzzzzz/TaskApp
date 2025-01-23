@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskapp/models/recipes_models.dart';
 import 'package:taskapp/pages/recipes_details.dart';
@@ -33,7 +32,6 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
     } catch (e) {
-      print('Error loading hot recipes: $e');
       setState(() => isLoading = false);
     }
   }
@@ -140,7 +138,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // TODO: Use Layout Builder
   Widget _buildRecipeCard({
     required BuildContext context,
     required RecipesModels recipe,
@@ -155,7 +152,7 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: safeHeight * 0.27,
+        height: safeHeight * 0.23,
         width: width,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -176,8 +173,9 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Flexible(
-                  flex: 5,
+                  flex: 2,
                   child: Container(
+                    height: constraints.maxHeight * 0.6,
                     decoration: BoxDecoration(
                       color: Colors.grey,
                       borderRadius: BorderRadius.circular(12),
@@ -188,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )),
               Flexible(
-                  flex: 4,
+                  flex: 3,
                   child: Padding(
                     padding: EdgeInsets.all(constraints.maxWidth * 0.04),
                     child: Column(
@@ -198,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                           recipe.title,
                           style: TextStyle(
                               color: Colors.black,
-                              fontSize: titleFontSize * 1.5),
+                              fontSize: titleFontSize * 1.7),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -209,7 +207,7 @@ class _HomePageState extends State<HomePage> {
                           recipe.ingredients,
                           style: TextStyle(
                               color: Colors.grey,
-                              fontSize: descriptionFontSize * 1.5),
+                              fontSize: descriptionFontSize * 1.7),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -229,7 +227,7 @@ class _HomePageState extends State<HomePage> {
                                   '${recipe.rating}',
                                   style: TextStyle(
                                     color: Colors.grey,
-                                    fontSize: descriptionFontSize * 1.5,
+                                    fontSize: descriptionFontSize * 1.7,
                                   ),
                                 ),
                               ],
@@ -238,7 +236,7 @@ class _HomePageState extends State<HomePage> {
                               '${recipe.calories} kcal',
                               style: TextStyle(
                                   color: Colors.grey,
-                                  fontSize: descriptionFontSize * 1.5),
+                                  fontSize: descriptionFontSize * 1.7),
                             ),
                           ],
                         )

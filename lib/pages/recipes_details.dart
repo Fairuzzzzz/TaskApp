@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:taskapp/models/recipes_models.dart';
+import 'package:taskapp/provider/recipe_provider.dart';
 import 'package:taskapp/services/recipe_services.dart';
 
 class RecipesDetailsPage extends StatefulWidget {
@@ -15,6 +17,7 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
   int counter = 0;
   String selectedValue = 'Ingredients';
   final RecipeServices _recipeServices = RecipeServices();
+  List<RecipesModels> favorites = [];
   bool _isLoading = false;
   bool _isFavorite = false;
 
@@ -41,6 +44,8 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
 
       widget.recipes.isFavorite = _isFavorite;
 
+      context.read<RecipeProvider>().loadFavorites();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(widget.recipes.isFavorite
@@ -50,7 +55,6 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
         ),
       );
     } catch (e) {
-      print('Error toggling favorite: $e');
       setState(() {
         _isFavorite = !_isFavorite;
       });
@@ -153,7 +157,9 @@ class _RecipesDetailsPageState extends State<RecipesDetailsPage> {
               )),
           centerTitle: true,
           leading: IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               icon: Icon(Icons.arrow_back_ios_rounded),
               color: Color(0xFF9BD886)),
         ),

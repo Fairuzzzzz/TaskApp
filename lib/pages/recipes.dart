@@ -35,7 +35,6 @@ class _RecipesPageState extends State<RecipesPage> {
         isLoading = false;
       });
     } catch (e) {
-      print(e);
       setState(() {
         isLoading = false;
       });
@@ -60,7 +59,6 @@ class _RecipesPageState extends State<RecipesPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final double gridPadding = size.width * 0.02;
-    final double cardHeight = size.height * 0.25;
 
     final double titleFontSize = size.width * 0.045;
     final double descriptionFontSize = size.width * 0.035;
@@ -83,7 +81,7 @@ class _RecipesPageState extends State<RecipesPage> {
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.push<bool>(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => RecipesDetailsPage(
