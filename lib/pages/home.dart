@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:taskapp/models/recipes_models.dart';
+import 'package:taskapp/notifier/recipe_notifier.dart';
 import 'package:taskapp/pages/recipes_details.dart';
 import 'package:taskapp/services/recipe_services.dart';
 
@@ -13,29 +15,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _searchValue = 'Pesto Pasta';
-  final RecipeServices _recipeServices = RecipeServices();
-  List<RecipesModels> hotRecipes = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadHotRecipes();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RecipeNotifier>().loadHotRecipes();
+    });
   }
 
-  Future<void> _loadHotRecipes() async {
-    try {
-      final recipes = await _recipeServices.getAllRecipes();
-      setState(() {
-        recipes.sort((a, b) => b.rating.compareTo(a.rating));
-        hotRecipes = recipes.take(2).toList();
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() => isLoading = false);
-    }
-  }
-
+  // TODO: Use Refresh Indicator
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -44,30 +34,54 @@ class _HomePageState extends State<HomePage> {
     final dynamicFontSize = size.width * 0.04;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      extendBodyBehindAppBar: true,
-      appBar: _appBar(),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : LayoutBuilder(builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: padding.top + kToolbarHeight + 12,
+        resizeToAvoidBottomInset: true,
+        extendBodyBehindAppBar: true,
+        appBar: _appBar(),
+        backgroundColor: Colors.white,
+        body: Consumer<RecipeNotifier>(builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final hotRecipes = provider.recipes
+              .where((recipe) => recipe.rating >= 3)
+              .take(2)
+              .toList();
+
+          return LayoutBuilder(builder: (context, constraints) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                await provider.loadRecipes();
+                await provider.loadHotRecipes();
+              },
+              child: SingleChildScrollView(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: padding.top + kToolbarHeight + 12,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      "Hottest Recipes",
+                      style: TextStyle(
+                          color: Colors.black, fontSize: dynamicFontSize),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        "Hottest Recipes",
-                        style: TextStyle(
-                            color: Colors.black, fontSize: dynamicFontSize),
+                  ),
+                  SizedBox(
+                    height: safeHeight * 0.012,
+                  ),
+                  if (provider.recipes.isEmpty)
+                    SizedBox(
+                      height: safeHeight * 0.1,
+                      child: Center(
+                        child: Text('No Hot Recipes'),
                       ),
-                    ),
-                    SizedBox(
-                      height: safeHeight * 0.012,
-                    ),
+                    )
+                  else
                     Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -87,55 +101,54 @@ class _HomePageState extends State<HomePage> {
                                   );
                                 }))
                             .toList()),
-                    SizedBox(
-                      height: safeHeight * 0.02,
+                  SizedBox(
+                    height: safeHeight * 0.02,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Text("Featured",
+                        style: TextStyle(
+                            color: Colors.black, fontSize: dynamicFontSize)),
+                  ),
+                  SizedBox(
+                    height: safeHeight * 0.012,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Container(
+                      width: double.infinity,
+                      height: constraints.maxWidth * 0.4,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                              image: AssetImage("assets/images/image.png"),
+                              fit: BoxFit.cover)),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
-                      child: Text("Featured",
-                          style: TextStyle(
-                              color: Colors.black, fontSize: dynamicFontSize)),
-                    ),
-                    SizedBox(
-                      height: safeHeight * 0.012,
-                    ),
-                    Padding(
+                  ),
+                  SizedBox(
+                    height: safeHeight * 0.012,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text("Select Recipes",
+                        style: TextStyle(
+                            color: Colors.black, fontSize: dynamicFontSize)),
+                  ),
+                  SizedBox(
+                    height: safeHeight * 0.012,
+                  ),
+                  Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Container(
-                        width: double.infinity,
-                        height: constraints.maxWidth * 0.4,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(
-                                image: AssetImage("assets/images/image.png"),
-                                fit: BoxFit.cover)),
-                      ),
-                    ),
-                    SizedBox(
-                      height: safeHeight * 0.012,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text("Select Recipes",
-                          style: TextStyle(
-                              color: Colors.black, fontSize: dynamicFontSize)),
-                    ),
-                    SizedBox(
-                      height: safeHeight * 0.012,
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: _buildCategoryGrid(constraints)),
-                    SizedBox(
-                      height: safeHeight * 0.02,
-                    )
-                  ],
-                ),
-              );
-            }),
-      backgroundColor: Colors.white,
-    );
+                      child: _buildCategoryGrid(constraints)),
+                  SizedBox(
+                    height: safeHeight * 0.02,
+                  )
+                ],
+              )),
+            );
+          });
+        }));
   }
 
   Widget _buildRecipeCard({

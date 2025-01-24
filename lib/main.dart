@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:taskapp/notifier/recipe_notifier.dart';
 import 'package:taskapp/pages/mainscreen.dart';
-import 'package:taskapp/provider/recipe_provider.dart';
+import 'package:taskapp/notifier/favorite_notifier.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-      create: (context) => RecipeProvider(), child: const MyApp()));
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => FavoriteNotifier()),
+    ChangeNotifierProvider(create: (_) => RecipeNotifier()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taskapp/models/recipes_models.dart';
 import 'package:taskapp/services/recipe_services.dart';
 
-class RecipeProvider extends ChangeNotifier {
+class FavoriteNotifier extends ChangeNotifier {
   final RecipeServices recipeServices = RecipeServices();
   List<RecipesModels> _favorites = [];
   bool _isLoading = false;

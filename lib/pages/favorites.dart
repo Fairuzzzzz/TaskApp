@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:taskapp/models/recipes_models.dart';
 import 'package:taskapp/pages/recipes_details.dart';
-import 'package:taskapp/provider/recipe_provider.dart';
-import 'package:taskapp/services/recipe_services.dart';
+import 'package:taskapp/notifier/favorite_notifier.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -13,18 +11,15 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPageState extends State<FavoritesPage> {
-  final RecipeServices recipesServices = RecipeServices();
-  List<RecipesModels> favorites = [];
-  bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RecipeProvider>().loadFavorites();
+      context.read<FavoriteNotifier>().loadFavorites();
     });
   }
 
+  // TODO: Use Refresh Indicator and Syncronsizing Details Pages
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -40,7 +35,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
         ),
         backgroundColor: Colors.white,
       ),
-      body: Consumer<RecipeProvider>(builder: (context, provider, child) {
+      body: Consumer<FavoriteNotifier>(builder: (context, provider, child) {
         if (provider.isLoading) {
           return Center(
             child: CircularProgressIndicator(),
