@@ -94,4 +94,8 @@ class RecipeNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  RecipesModels getRecipeById(int id) {
+    return _recipes.firstWhere((recipe) => recipe.id == id);
+  }
 }

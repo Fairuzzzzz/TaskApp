@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:taskapp/models/recipes_models.dart';
 import 'package:taskapp/notifier/recipe_notifier.dart';
 import 'package:taskapp/pages/recipes_details.dart';
-import 'package:taskapp/services/recipe_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,7 +24,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // TODO: Use Refresh Indicator
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -46,106 +44,112 @@ class _HomePageState extends State<HomePage> {
           }
 
           final hotRecipes = provider.recipes
-              .where((recipe) => recipe.rating >= 3)
+              .where((recipe) => recipe.rating >= 4)
               .take(2)
               .toList();
 
           return LayoutBuilder(builder: (context, constraints) {
-            return RefreshIndicator(
+            return RefreshIndicator.adaptive(
+              color: Color(0xFF9BD886),
+              displacement: 70,
               onRefresh: () async {
                 await provider.loadRecipes();
                 await provider.loadHotRecipes();
               },
               child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
                   child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: padding.top + kToolbarHeight + 12,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      "Hottest Recipes",
-                      style: TextStyle(
-                          color: Colors.black, fontSize: dynamicFontSize),
-                    ),
-                  ),
-                  SizedBox(
-                    height: safeHeight * 0.012,
-                  ),
-                  if (provider.recipes.isEmpty)
-                    SizedBox(
-                      height: safeHeight * 0.1,
-                      child: Center(
-                        child: Text('No Hot Recipes'),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: padding.top + kToolbarHeight + 12,
                       ),
-                    )
-                  else
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: hotRecipes
-                            .map((recipe) => _buildRecipeCard(
-                                context: context,
-                                recipe: recipe,
-                                width: constraints.maxWidth * 0.43,
-                                height: safeHeight * 0.27,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          RecipesDetailsPage(recipes: recipe),
-                                    ),
-                                  );
-                                }))
-                            .toList()),
-                  SizedBox(
-                    height: safeHeight * 0.02,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text("Featured",
-                        style: TextStyle(
-                            color: Colors.black, fontSize: dynamicFontSize)),
-                  ),
-                  SizedBox(
-                    height: safeHeight * 0.012,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Container(
-                      width: double.infinity,
-                      height: constraints.maxWidth * 0.4,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                              image: AssetImage("assets/images/image.png"),
-                              fit: BoxFit.cover)),
-                    ),
-                  ),
-                  SizedBox(
-                    height: safeHeight * 0.012,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text("Select Recipes",
-                        style: TextStyle(
-                            color: Colors.black, fontSize: dynamicFontSize)),
-                  ),
-                  SizedBox(
-                    height: safeHeight * 0.012,
-                  ),
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildCategoryGrid(constraints)),
-                  SizedBox(
-                    height: safeHeight * 0.02,
-                  )
-                ],
-              )),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          "Hottest Recipes",
+                          style: TextStyle(
+                              color: Colors.black, fontSize: dynamicFontSize),
+                        ),
+                      ),
+                      SizedBox(
+                        height: safeHeight * 0.012,
+                      ),
+                      if (provider.recipes.isEmpty)
+                        SizedBox(
+                          height: safeHeight * 0.1,
+                          child: Center(
+                            child: Text('No Hot Recipes'),
+                          ),
+                        )
+                      else
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: hotRecipes
+                                .map((recipe) => _buildRecipeCard(
+                                    context: context,
+                                    recipe: recipe,
+                                    width: constraints.maxWidth * 0.43,
+                                    height: safeHeight * 0.27,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              RecipesDetailsPage(
+                                                  recipes: recipe),
+                                        ),
+                                      );
+                                    }))
+                                .toList()),
+                      SizedBox(
+                        height: safeHeight * 0.02,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24),
+                        child: Text("Featured",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: dynamicFontSize)),
+                      ),
+                      SizedBox(
+                        height: safeHeight * 0.012,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Container(
+                          width: double.infinity,
+                          height: constraints.maxWidth * 0.4,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                  image: AssetImage("assets/images/image.png"),
+                                  fit: BoxFit.cover)),
+                        ),
+                      ),
+                      SizedBox(
+                        height: safeHeight * 0.012,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text("Select Recipes",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: dynamicFontSize)),
+                      ),
+                      SizedBox(
+                        height: safeHeight * 0.012,
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: _buildCategoryGrid(constraints)),
+                      SizedBox(
+                        height: safeHeight * 0.02,
+                      )
+                    ],
+                  )),
             );
           });
         }));
